@@ -1,46 +1,45 @@
-'use strict'
+var http = require('http');
+var express = require('express');
+var WSS = require('ws').Server;
 
-var WebSocketServer = require('ws').Server;
-var http = require("http")
-var express = require("express")
-var app = express()
-var port = process.env.PORT || 1234
+// var app = express().use(express.static('public'));
+// var server = http.createServer(app);
+// server.listen(8080, '127.0.0.1');
 
-app.use(express.static(__dirname + "/"))
+var wss = new WSS({ port: 8081 });
+wss.on('connection', function(socket) {
+  console.log('Opened Connection 🎉');
 
-var server = http.createServer(app)
-server.listen(port)
+  var json = JSON.stringify({ message: 'Gotcha' });
+  socket.send(json);
+  console.log('Sent: ' + json);
 
-console.log("http server listening on %d", port)
+  socket.on('message', function(message) {
+    console.log('Received: ' + message);
 
-var wss = new WebSocketServer({server: server});
-console.log("websocket server created")
-
-var cache = require('./cache.js');
-
-/**
- *  Broadcasts incoming data to all active connections
- */
-wss.on('connection', function (conn) {
-    conn.on('message', function (data) {
-        let messageType = cache.message(data)
-        wss.clients.forEach(function each(client) {
-            client.send(data);
-            if (messageType === 'user') {
-                console.log('Sending all users and notes to all users');
-                let users = cache.getUsers();
-                if (users) {
-                    for(let index = 0; index < users.length; index++) {
-                        client.send(JSON.stringify(users[index]));
-                    }
-                }
-                let notes = cache.getNotes();
-                if (notes) {
-                    for(let index = 0; index < notes.length; index++) {
-                        client.send(JSON.stringify(notes[index]));
-                    }
-                }
-            }
-        });
+    wss.clients.forEach(function each(client) {
+      var json = JSON.stringify({ message: 'Something changed' });
+      client.send(json);
+      console.log('Sent: ' + json);
     });
+  });
+
+  socket.on('close', function() {
+    console.log('Closed Connection 😱');
+  });
+
 });
+
+var broadcast = function() {
+  let date = new Date()
+
+  var json = JSON.stringify({
+    message: 'Hello hello!' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
+  });
+
+  wss.clients.forEach(function each(client) {
+    client.send(json);
+    console.log('Sent: ' + json);
+  });
+}
+setInterval(broadcast, 3000);
