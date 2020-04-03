@@ -1,0 +1,19 @@
+{
+  "name": "doxit-websocket",
+  "version": "1.0.0",
+  "description": "websocket for doxit",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Johannes Schweig",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "minimist": "^1.2.5",
+    "node-cache": "^5.1.0",
+    "ws": "^7.2.3"
+  }
+}
