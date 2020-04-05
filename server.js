@@ -1,12 +1,21 @@
-var http = require('http');
-var express = require('express');
-var WSS = require('ws').Server;
+'use strict'
 
-// var app = express().use(express.static('public'));
-// var server = http.createServer(app);
-// server.listen(8080, '127.0.0.1');
+var WebSocketServer = require('ws').Server;
+var http = require("http")
+var express = require("express")
+var app = express()
+var port = process.env.PORT || 1234
 
-var wss = new WSS({ port: 8081 });
+app.use(express.static(__dirname + "/"))
+
+var server = http.createServer(app)
+server.listen(port)
+
+console.log("http server listening on %d", port)
+
+var wss = new WebSocketServer({server: server});
+console.log("websocket server created")
+
 wss.on('connection', function(socket) {
   console.log('Opened Connection 🎉');
 
